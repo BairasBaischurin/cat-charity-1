@@ -20,7 +20,7 @@
 
 ### 1. Клонирование репозитория и переход в папку
 ```bash
-git clone https://github.com
+git clone git@github.com:BairasBaischurin/cat-charity-1.git
 cd cat-charity-1
 ```
 
@@ -98,3 +98,6 @@ mypy app/
 
 ## Автор
 * **Байчурин Байрас** — *Студент Яндекс Практикума.*
+* **Email:** [bairon.bairas@yandex.ru](bairon.bairas@yandex.ru)
+* **Пачка:** [Bairas](https://app.pachca.com/chats?user_id=518163)
+* **GitHub:** [BairasBaischurin](https://github.com/BairasBaischurin)

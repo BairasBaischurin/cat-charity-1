@@ -1,10 +1,6 @@
-from datetime import datetime, timezone
-from typing import List
-
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 
 from app.api.validators import (
     check_full_amount_less_than_invested,
@@ -14,13 +10,13 @@ from app.api.validators import (
     check_project_has_investments
 )
 from app.core.db import get_async_session
-from app.models import CharityProject
+from app.models import CharityProject, Donation
 from app.schemas.charity_project import (
     CharityProjectCreate,
     CharityProjectDB,
     CharityProjectUpdate,
 )
-from app.services.investing import invest_money
+from app.services.investing import create_and_invest
 
 
 router = APIRouter()
@@ -28,15 +24,14 @@ router = APIRouter()
 
 @router.get(
     '/',
-    response_model=List[CharityProjectDB],
+    response_model=list[CharityProjectDB],
 )
 async def get_all_charity_projects(
     session: AsyncSession = Depends(get_async_session),
 ):
     """Показывает все проекты."""
     result = await session.execute(select(CharityProject))
-    all_projects = result.scalars().all()
-    return all_projects
+    return result.scalars().all()
 
 
 @router.post(
@@ -49,15 +44,10 @@ async def create_charity_project(
 ):
     """Создание проекта."""
     await check_name_duplicate(project_in.name, session)
-    new_project = CharityProject(**project_in.model_dump())
 
-    session.add(new_project)
-    await session.flush()
-
-    await invest_money(session)
-    await session.commit()
-    await session.refresh(new_project)
-    return new_project
+    return await create_and_invest(
+        project_in, CharityProject, Donation, session
+    )
 
 
 @router.patch(
@@ -89,8 +79,7 @@ async def update_charity_project(
         setattr(db_project, field, value)
 
     if db_project.full_amount == db_project.invested_amount:
-        db_project.fully_invested = True
-        db_project.close_date = datetime.now(timezone.utc)
+        db_project.close()
 
     session.add(db_project)
     await session.commit()

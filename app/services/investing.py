@@ -1,61 +1,70 @@
-from datetime import datetime, timezone
+from __future__ import annotations
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import CharityProject, Donation
+from app.models.base import Base
 
 
-def close_donation_or_project(obj) -> None:
-    """Вспомогательная функция для закрытия объекта."""
-    obj.fully_invested = True
-    obj.close_date = datetime.now(timezone.utc)
+async def create_and_invest(
+    model_in,
+    model_cls: type[Base],
+    opposing_model_cls: type[Base],
+    session: AsyncSession
+) -> Base:
+    """Создает объект и запускает процесс инвестирования."""
+    new_object = model_cls(**model_in.model_dump())
+    session.add(new_object)
+    await session.flush()
 
-
-async def invest_money(
-    session: AsyncSession,
-) -> None:
-    """Универсальная функция распределения свободных денег по проектам."""
-    projects_query = await session.execute(
-        select(CharityProject)
-        .where(CharityProject.fully_invested.is_(False))
-        .order_by(CharityProject.create_date)
+    query = (
+        select(opposing_model_cls)
+        .where(opposing_model_cls.fully_invested.is_(False))
+        .order_by(opposing_model_cls.create_date)
     )
-    open_projects = projects_query.scalars().all()
+    result = await session.execute(query)
+    uninvested_projects = list(result.scalars().all())
 
-    donations_query = await session.execute(
-        select(Donation)
-        .where(Donation.fully_invested.is_(False))
-        .order_by(Donation.create_date)
+    updated_projects = invest_money(
+        target=new_object, sources=uninvested_projects
     )
-    open_donations = donations_query.scalars().all()
 
-    if not open_projects or not open_donations:
-        return
+    if updated_projects:
+        session.add_all(updated_projects)
 
-    for project in open_projects:
-        for donation in open_donations:
-            if donation.fully_invested:
-                continue
+    await session.commit()
+    await session.refresh(new_object)
+    return new_object
 
-            project_needed = project.full_amount - project.invested_amount
-            donation_available = (
-                donation.full_amount - donation.invested_amount
-            )
 
-            money_to_invest = min(project_needed, donation_available)
+def invest_money(
+    target: Base,
+    sources: list[Base],
+) -> list[Base]:
+    """Функция распределения средств."""
+    changed_objects = []
 
-            project.invested_amount += money_to_invest
-            donation.invested_amount += money_to_invest
+    for source in sources:
+        target_needed = target.full_amount - target.invested_amount
+        if target_needed == 0:
+            break
 
-            if donation.invested_amount == donation.full_amount:
-                close_donation_or_project(donation)
+        source_available = source.full_amount - source.invested_amount
+        if source_available == 0:
+            continue
 
-            if project.invested_amount == project.full_amount:
-                close_donation_or_project(project)
-                break
+        money_to_invest = min(target_needed, source_available)
 
-        session.add(project)
+        target.invested_amount += money_to_invest
+        source.invested_amount += money_to_invest
 
-        for donation in open_donations:
-            session.add(donation)
+        changed_objects.append(source)
+
+        if source.invested_amount == source.full_amount:
+            source.close()
+
+        if target.invested_amount == target.full_amount:
+            target.close()
+            break
+
+    return changed_objects
