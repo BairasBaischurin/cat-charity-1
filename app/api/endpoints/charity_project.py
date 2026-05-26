@@ -16,7 +16,7 @@ from app.schemas.charity_project import (
     CharityProjectDB,
     CharityProjectUpdate,
 )
-from app.services.investing import create_and_invest
+from app.crud.base import create_and_invest
 
 
 router = APIRouter()
@@ -78,8 +78,7 @@ async def update_charity_project(
     for field, value in update_data.items():
         setattr(db_project, field, value)
 
-    if db_project.full_amount == db_project.invested_amount:
-        db_project.close()
+    db_project.close()
 
     session.add(db_project)
     await session.commit()

@@ -20,9 +20,4 @@ class CharityProject(ProjectDonationBase):
 
     def __repr__(self) -> str:
         """Отладочный метод с опорой на базовый класс."""
-        base_repr = super().__repr__()
-
-        return base_repr.replace(
-            f'<{self.__class__.__name__}(',
-            f'<{self.__class__.__name__}(name="{self.name}", '
-        )
+        return f'Project name="{self.name}" | Data: {super().__repr__()}'

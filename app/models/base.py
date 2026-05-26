@@ -4,10 +4,10 @@ from typing import Optional
 from sqlalchemy import Integer, Boolean, DateTime, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.core.db import Base as DeclarativeBase, CommonMixin
+from app.core.db import CommonBase
 
 
-class Base(CommonMixin, DeclarativeBase):
+class Base(CommonBase):
     """Базовый абстрактный класс для проектов и пожертвований."""
 
     __abstract__ = True
@@ -18,12 +18,8 @@ class Base(CommonMixin, DeclarativeBase):
             name='check_full_amount_positive'
         ),
         CheckConstraint(
-            'invested_amount >= 0',
+            '0 <= invested_amount AND invested_amount <= full_amount',
             name='check_invested_amount_not_negative'
-        ),
-        CheckConstraint(
-            'invested_amount <= full_amount',
-            name='check_invested_amount_limit'
         ),
     )
 
@@ -50,14 +46,18 @@ class Base(CommonMixin, DeclarativeBase):
 
     def close(self) -> None:
         """Переводит объект в статус полностью проинвестированного."""
-        self.fully_invested = True
-        self.close_date = datetime.now(timezone.utc)
+        if self.full_amount == self.invested_amount:
+            self.fully_invested = True
+            self.close_date = datetime.now(timezone.utc)
 
     def __repr__(self) -> str:
         """Отладочный метод."""
-        return (
-            f'<{self.__class__.__name__}(id={self.id}, '
+        base_repr = super().__repr__()
+        additional_fields = (
             f'full_amount={self.full_amount}, '
             f'invested_amount={self.invested_amount}, '
-            f'fully_invested={self.fully_invested})>'
+            f'fully_invested={self.fully_invested}'
+            f'create_date={self.create_date}, '
+            f'close_date={self.close_date}'
         )
+        return base_repr.replace(')>', f', {additional_fields})>')

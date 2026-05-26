@@ -10,7 +10,7 @@ from app.schemas.donation import (
     DonationDB,
     DonationFullInfoDB
 )
-from app.services.investing import create_and_invest
+from app.crud.base import create_and_invest
 
 
 router = APIRouter()

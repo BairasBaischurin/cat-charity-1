@@ -16,15 +16,7 @@ class Donation(ProjectDonationBase):
 
     def __repr__(self) -> str:
         """Отладочный метод с опорой на базовый класс."""
-        base_repr = super().__repr__()
-
-        short_comment = (
-            f'"{self.comment[:15]}..."'
-            if self.comment and len(self.comment) > 15
-            else f'"{self.comment}"'
-        )
-
-        return base_repr.replace(
-            f'<{self.__class__.__name__}(',
-            f'<{self.__class__.__name__}(comment={short_comment}, '
+        comment_preview = f'"{self.comment[:15]}"' if self.comment else 'None'
+        return (
+            f'Donation comment={comment_preview} | Data: {super().__repr__()}'
         )

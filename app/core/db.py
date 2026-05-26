@@ -17,10 +17,15 @@ class Base(DeclarativeBase):
         return cls.__name__.lower()
 
 
-class CommonMixin:
-    """Миксин для колонки id."""
+class CommonBase(Base):
+    """Базовый класс с предустановленным полем ID."""
+    __abstract__ = True
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
+    def __repr__(self) -> str:
+        """Текстовое представление объекта для отладки и логов."""
+        return f'<{self.__class__.__name__}(id={self.id})>'
 
 
 engine = create_async_engine(settings.database_url)
