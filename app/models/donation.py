@@ -17,6 +17,5 @@ class Donation(ProjectDonationBase):
     def __repr__(self) -> str:
         """Отладочный метод с опорой на базовый класс."""
         comment_preview = f'"{self.comment[:15]}"' if self.comment else 'None'
-        return (
-            f'Donation comment={comment_preview} | Data: {super():!r}'
-        )
+        base_data = super().__repr__()
+        return f'Donation comment={comment_preview} | Data: {base_data}'
