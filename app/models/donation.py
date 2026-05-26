@@ -18,5 +18,5 @@ class Donation(ProjectDonationBase):
         """Отладочный метод с опорой на базовый класс."""
         comment_preview = f'"{self.comment[:15]}"' if self.comment else 'None'
         return (
-            f'Donation comment={comment_preview} | Data: {super().__repr__()}'
+            f'Donation comment={comment_preview} | Data: {super():!r}'
         )
