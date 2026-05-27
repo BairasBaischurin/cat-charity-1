@@ -21,7 +21,6 @@ class CommonBase(Base):
     """Базовый класс с предустановленным полем ID."""
 
     __abstract__ = True
-
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
     def __repr__(self) -> str:

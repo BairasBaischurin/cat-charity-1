@@ -7,11 +7,10 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.core.db import CommonBase
 
 
-class Base(CommonBase):
+class InvestmentModel(CommonBase):
     """Базовый абстрактный класс для проектов и пожертвований."""
 
     __abstract__ = True
-
     __table_args__ = (
         CheckConstraint(
             'full_amount > 0',
@@ -22,7 +21,6 @@ class Base(CommonBase):
             name='check_invested_amount_not_negative'
         ),
     )
-
     full_amount: Mapped[int] = mapped_column(Integer, nullable=False)
     invested_amount: Mapped[int] = mapped_column(
         Integer,
@@ -52,12 +50,10 @@ class Base(CommonBase):
 
     def __repr__(self) -> str:
         """Отладочный метод."""
-        base_repr = super().__repr__()
-        additional_fields = (
+        return (
             f'full_amount={self.full_amount}, '
             f'invested_amount={self.invested_amount}, '
             f'fully_invested={self.fully_invested}'
             f'create_date={self.create_date}, '
             f'close_date={self.close_date}'
         )
-        return base_repr.replace(')>', f', {additional_fields})>')

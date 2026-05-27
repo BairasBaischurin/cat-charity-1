@@ -44,7 +44,6 @@ class CharityProjectDB(CharityProjectCreate):
         extra='forbid',
         from_attributes=True
     )
-
     id: int = Field(..., title='Первичный ключ')
     invested_amount: int = Field(..., title='Собранная сумма')
     fully_invested: bool = Field(..., title='Проект полностью инвестирован')
