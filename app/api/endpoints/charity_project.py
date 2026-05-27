@@ -16,6 +16,7 @@ from app.schemas.charity_project import (
     CharityProjectDB,
     CharityProjectUpdate,
 )
+from app.services.investing import invest_money
 
 
 router = APIRouter()
@@ -44,16 +45,8 @@ async def create_charity_project(
 ):
     """Создание проекта."""
     await check_name_duplicate(project_in.name, session)
-<<<<<<< HEAD
     new_project = await charity_project_crud.create(
         obj_in=project_in, session=session
-=======
-
-    return await charity_project_crud.create(
-        obj_in=project_in,
-        opposing_crud=donation_crud,
-        session=session
->>>>>>> c5ba1e07413c7d51442824b51dabc5f158de6a40
     )
     uninvested_donations = await donation_crud.get_uninvested(session)
     updated_sources = invest_money(
@@ -84,24 +77,16 @@ async def update_charity_project(
         check_full_amount_less_than_invested(
             db_project, project_in.full_amount
         )
-<<<<<<< HEAD
     db_project = await charity_project_crud.update(
-=======
-
-    return await charity_project_crud.update(
->>>>>>> c5ba1e07413c7d51442824b51dabc5f158de6a40
         db_obj=db_project,
         obj_in=project_in,
         session=session
     )
-<<<<<<< HEAD
     db_project.closing_fully_invested_project()
     session.add(db_project)
     await session.commit()
     await session.refresh(db_project)
     return db_project
-=======
->>>>>>> c5ba1e07413c7d51442824b51dabc5f158de6a40
 
 
 @router.delete(
@@ -116,10 +101,6 @@ async def delete_charity_project(
     db_project = await check_project_exists(project_id, session)
     check_project_already_closed(db_project)
     check_project_has_investments(db_project)
-<<<<<<< HEAD
-=======
-
->>>>>>> c5ba1e07413c7d51442824b51dabc5f158de6a40
     return await charity_project_crud.remove(
         db_obj=db_project, session=session
     )

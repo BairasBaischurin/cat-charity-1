@@ -20,7 +20,6 @@ class CharityProject(InvestmentModel):
 
     def __repr__(self) -> str:
         """Отладочный метод с опорой на базовый класс."""
-<<<<<<< HEAD
         return (
             f'CharityProject('
             f'id={self.id}, '
@@ -31,6 +30,3 @@ class CharityProject(InvestmentModel):
             f'create_date={self.create_date}, '
             f'close_date={self.close_date})'
         )
-=======
-        return f'Project name="{self.name}"'
->>>>>>> c5ba1e07413c7d51442824b51dabc5f158de6a40
