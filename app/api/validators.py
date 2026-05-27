@@ -18,10 +18,6 @@ async def check_name_duplicate(
     db_project_id = await charity_project_crud.get_project_id_by_name(
         project_name, session
     )
-<<<<<<< HEAD
-=======
-
->>>>>>> c5ba1e07413c7d51442824b51dabc5f158de6a40
     if db_project_id is not None:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
