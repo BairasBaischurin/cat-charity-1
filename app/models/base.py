@@ -18,7 +18,7 @@ class Base(CommonBase):
             name='check_full_amount_positive'
         ),
         CheckConstraint(
-            '0 <= invested_amount AND invested_amount <= full_amount',
+            '0 <= invested_amount <= full_amount',
             name='check_invested_amount_not_negative'
         ),
     )
@@ -44,7 +44,7 @@ class Base(CommonBase):
         nullable=True
     )
 
-    def close(self) -> None:
+    def closing_fully_invested_project(self) -> None:
         """Переводит объект в статус полностью проинвестированного."""
         if self.full_amount == self.invested_amount:
             self.fully_invested = True

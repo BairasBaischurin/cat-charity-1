@@ -26,7 +26,7 @@ class CommonBase(Base):
 
     def __repr__(self) -> str:
         """Текстовое представление объекта для отладки и логов."""
-        return f'<{self.__class__.__name__}(id={self.id})>'
+        return f'{self.__class__.__name__}: id={self.id}'
 
 
 engine = create_async_engine(settings.database_url)

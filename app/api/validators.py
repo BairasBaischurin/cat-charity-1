@@ -2,9 +2,12 @@ from http import HTTPStatus
 
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
+from app.crud.base import CRUDBase
 from app.models import CharityProject
+
+
+charity_project_crud = CRUDBase(CharityProject)
 
 
 async def check_name_duplicate(
@@ -12,10 +15,9 @@ async def check_name_duplicate(
     session: AsyncSession,
 ) -> None:
     """Проверяет уникальность имени проекта."""
-    db_project_id = await session.execute(
-        select(CharityProject.id).where(CharityProject.name == project_name)
+    db_project_id = await charity_project_crud.get_project_id_by_name(
+        project_name, session
     )
-    db_project_id = db_project_id.scalars().first()
 
     if db_project_id is not None:
         raise HTTPException(

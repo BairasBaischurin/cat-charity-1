@@ -9,9 +9,6 @@ def invest_money(
     changed = []
 
     for source in sources:
-        if target.fully_invested:
-            break
-
         changed.append(source)
 
         money_to_invest = min(
@@ -19,12 +16,11 @@ def invest_money(
             source.full_amount - source.invested_amount
         )
 
-        if money_to_invest == 0:
-            changed.pop()
-            continue
-
         for obj in (target, source):
             obj.invested_amount += money_to_invest
-            obj.close()
+            obj.closing_fully_invested_project()
+
+        if target.fully_invested:
+            break
 
     return changed

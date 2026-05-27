@@ -1,19 +1,20 @@
 from fastapi import APIRouter, Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
 from app.core.db import get_async_session
+from app.crud.base import CRUDBase
 from app.models import CharityProject, Donation
 from app.schemas.donation import (
     DonationCreate,
     DonationDB,
     DonationFullInfoDB
 )
-from app.crud.base import create_and_invest
 
 
 router = APIRouter()
+donation_crud = CRUDBase(Donation)
+charity_project_crud = CRUDBase(CharityProject)
 
 
 @router.get(
@@ -24,10 +25,9 @@ async def get_all_donations(
     session: AsyncSession = Depends(get_async_session),
 ):
     """Вывод списка всех пожертвований."""
-    result = await session.execute(
-        select(Donation).order_by(Donation.create_date)
+    return await donation_crud.get_multi(
+        session, order_by_field=Donation.create_date
     )
-    return result.scalars().all()
 
 
 @router.post(
@@ -40,6 +40,8 @@ async def create_donation(
     session: AsyncSession = Depends(get_async_session),
 ):
     """Создает пожертвование."""
-    return await create_and_invest(
-        donation_in, Donation, CharityProject, session
+    return await donation_crud.create(
+        obj_in=donation_in,
+        opposing_crud=charity_project_crud,
+        session=session
     )
